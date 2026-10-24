@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atlas New Tab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Rajdhani:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="icons/icon48.png" />
+    <link rel="stylesheet" href="tailwind.css" />
+    <link rel="stylesheet" href="newtab.css" />
+  </head>
+  <body class="w-screen h-screen overflow-hidden bg-ink text-cream font-ui antialiased">
+    <!-- Background -->
+    <div class="fixed inset-0 z-0">
+      <div class="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800"></div>
+      <div class="bg-slide" id="bg-a"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/50"></div>
+      <div
+        id="bg-dim"
+        class="absolute inset-0 bg-black pointer-events-none"
+        style="opacity: 0"
+      ></div>
+      <div class="bg-vignette absolute inset-0"></div>
+    </div>
+
+    <!-- Photo credit -->
+    <div
+      id="photo-credit"
+      class="fixed bottom-3 left-5 z-20 flex items-center gap-1.5 text-xs tracking-widest text-white/30 uppercase font-light"
+    ></div>
+
+    <!-- ── SETUP SCREEN ── -->
+    <div
+      id="setup-screen"
+      class="hidden fixed inset-0 z-50 bg-ink/90 backdrop-blur-xl flex items-center justify-center"
+    >
+      <div
+        class="w-full max-w-sm text-center px-10 py-12 bg-ink/80 border border-cream/20 rounded-2xl shadow-2xl"
+      >
+        <div class="flex items-center justify-center mb-4">
+          <svg viewBox="0 0 96 96" class="w-14 h-14">
+            <circle cx="48" cy="48" r="34" fill="none" stroke="#c9a96e" stroke-width="2.2" />
+            <line
+              x1="14"
+              y1="48"
+              x2="82"
+              y2="48"
+              stroke="#c9a96e"
+              stroke-width="1.2"
+              opacity="0.55"
+            />
+            <line
+              x1="20"
+              y1="32"
+              x2="76"
+              y2="32"
+              stroke="#c9a96e"
+              stroke-width="0.8"
+              opacity="0.3"
+            />
+            <line
+              x1="20"
+              y1="64"
+              x2="76"
+              y2="64"
+              stroke="#c9a96e"
+              stroke-width="0.8"
+              opacity="0.3"
+            />
+            <ellipse
+              cx="48"
+              cy="48"
+              rx="16"
+              ry="34"
+              fill="none"
+              stroke="#c9a96e"
+              stroke-width="1.2"
+              opacity="0.55"
+            />
+            <ellipse
+              cx="48"
+              cy="48"
+              rx="30"
+              ry="34"
+              fill="none"
+              stroke="#c9a96e"
+              stroke-width="0.7"
+              opacity="0.28"
+            />
+            <circle cx="48" cy="48" r="3.5" fill="#c9a96e" />
+          </svg>
+        </div>
+        <h1 class="font-display text-4xl font-light tracking-ultra text-cream mb-3">Atlas</h1>
+        <p class="text-sm leading-relaxed text-cream/60 mb-6 tracking-wide">
+          Connect your free <strong class="text-gold font-normal">Unsplash API key</strong> to
+          unlock endless high-resolution world landscapes — a new one every tab.
+        </p>
+        <ol
+          class="text-left bg-cream/5 border border-cream/20 rounded-xl px-4 py-4 pl-8 mb-6 text-xs text-cream/60 leading-loose tracking-wide list-decimal"
+        >
+          <li>
+            Go to
+            <a
+              href="https://unsplash.com/developers"
+              target="_blank"
+              class="text-gold hover:underline"
+              >unsplash.com/developers</a
+            >
+          </li>
+          <li>Register as a developer &amp; create an app</li>
+          <li>
+            Copy your <strong class="text-cream/90 font-normal">Access Key</strong> and paste below
+          </li>
+        </ol>
+        <div class="flex gap-2.5">
+          <input
+            id="setup-key-input"
+            type="text"
+            placeholder="Paste your Unsplash Access Key…"
+            spellcheck="false"
+            autocomplete="off"
+            class="flex-1 bg-white/5 border border-cream/20 rounded-xl px-3.5 py-2.5 text-cream font-ui text-xs tracking-wide outline-none focus:border-gold/40 transition-colors placeholder:text-cream/25"
+          />
+          <button
+            id="setup-save-btn"
+            class="bg-gold text-ink rounded-xl px-5 py-2.5 font-ui text-xs font-medium tracking-widest uppercase cursor-pointer hover:opacity-85 disabled:opacity-50 transition-opacity whitespace-nowrap border-0"
+          >
+            Connect
+          </button>
+        </div>
+        <div id="setup-error" class="mt-3 text-xs text-red-400 tracking-wide min-h-4"></div>
+      </div>
+    </div>
+
+    <!-- ── MAIN ── -->
+    <main
+      id="main"
+      class="relative z-10 w-full h-screen flex flex-col items-center justify-center px-5"
+    >
+      <!-- Search bar -->
+      <div id="search-wrap" class="w-full">
+        <div
+          id="search-box"
+          class="flex items-center bg-ink/40 backdrop-blur-lg backdrop-saturate-150 border border-cream/20 rounded-full px-5 pr-1.5 gap-2.5 transition-colors focus-within:border-gold/40 focus-within:shadow-xl"
+        >
+          <svg
+            class="w-4 h-4 flex-shrink-0 text-cream/60"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search or enter address…"
+            autocomplete="off"
+            spellcheck="false"
+            class="flex-1 bg-transparent border-0 outline-none text-cream font-ui font-normal tracking-wide placeholder:text-cream/60"
+          />
+          <div
+            id="search-engine-pill"
+            class="relative flex items-center gap-1 bg-cream/5 border border-cream/20 rounded-full py-1.5 px-3 pr-2.5 cursor-pointer text-xs tracking-widest uppercase text-cream/60 hover:bg-cream/20 hover:text-cream transition-colors whitespace-nowrap select-none flex-shrink-0"
+          >
+            <span id="engine-label">Google</span>
+            <svg class="w-2 h-1.5 opacity-70" viewBox="0 0 10 6" fill="currentColor">
+              <path d="M0 0l5 6 5-6z" />
+            </svg>
+            <div
+              id="engine-dropdown"
+              class="hidden absolute bottom-full right-0 mb-2 bg-ink/95 backdrop-blur-md border border-cream/20 rounded-xl overflow-hidden min-w-36 shadow-2xl z-10"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Icon grid -->
+      <div id="links-wrap" class="mt-10">
+        <div id="links-grid" class="grid"></div>
+      </div>
+    </main>
+
+    <!-- ── EDIT MODAL ── -->
+    <div
+      id="modal-overlay"
+      class="hidden fixed inset-0 z-40 bg-black/65 backdrop-blur-sm flex items-center justify-center"
+    >
+      <div
+        class="bg-ink/90 border border-cream/20 rounded-2xl w-full max-w-lg max-h-4/5 flex flex-col overflow-hidden shadow-2xl"
+      >
+        <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-cream/20">
+          <h2 class="font-display text-3xl font-normal tracking-wide text-cream">
+            Customize Links
+          </h2>
+          <button
+            id="modal-close"
+            class="bg-transparent border-0 text-cream/60 cursor-pointer text-lg leading-none px-2 py-1 hover:text-cream transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+        <div id="modal-list" class="flex-1 overflow-y-auto p-3 flex flex-col gap-2"></div>
+        <div class="flex items-center justify-between px-6 py-4 border-t border-cream/20">
+          <button
+            id="change-key-btn"
+            class="bg-transparent text-cream/60 border border-cream/20 rounded-full px-4 py-2 font-ui text-xs tracking-widest uppercase cursor-pointer hover:text-cream transition-colors"
+          >
+            Change API Key
+          </button>
+          <button
+            id="save-btn"
+            class="bg-gold text-ink border-0 rounded-full px-6 py-2.5 font-ui text-xs font-medium tracking-widest uppercase cursor-pointer hover:opacity-85 transition-opacity"
+          >
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS TOGGLE ── -->
+    <button
+      id="settings-toggle"
+      title="Layout settings"
+      class="fixed top-1/2 right-0 -translate-y-1/2 z-20 w-7 h-16 bg-transparent border border-cream/10 border-r-0 rounded-l-lg text-cream/30 cursor-pointer flex items-center justify-center hover:bg-ink/50 hover:backdrop-blur-md hover:border-cream/20 hover:text-gold transition-all hover:w-8"
+    >
+      <svg
+        class="w-3.5 h-3.5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <circle cx="12" cy="12" r="3" />
+        <path
+          d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+        />
+      </svg>
+    </button>
+
+    <!-- ── SETTINGS FLYOUT ── -->
+    <div
+      id="settings-flyout"
+      class="fixed top-0 right-0 w-88 h-screen z-30 bg-ink/90 backdrop-blur-2xl border-l border-cream/20 flex flex-col transition-transform duration-300 ease-in-out translate-x-full"
+    >
+      <div
+        class="flex items-center justify-between px-5 py-4 border-b border-cream/20 flex-shrink-0"
+      >
+        <div class="flex items-center gap-2.5">
+          <svg viewBox="0 0 96 96" class="w-10 h-10 shrink-0">
+            <circle cx="48" cy="48" r="34" fill="none" stroke="#c9a96e" stroke-width="3.5" />
+            <line
+              x1="14"
+              y1="48"
+              x2="82"
+              y2="48"
+              stroke="#c9a96e"
+              stroke-width="2"
+              opacity="0.55"
+            />
+            <line
+              x1="20"
+              y1="32"
+              x2="76"
+              y2="32"
+              stroke="#c9a96e"
+              stroke-width="1.4"
+              opacity="0.3"
+            />
+            <line
+              x1="20"
+              y1="64"
+              x2="76"
+              y2="64"
+              stroke="#c9a96e"
+              stroke-width="1.4"
+              opacity="0.3"
+            />
+            <ellipse
+              cx="48"
+              cy="48"
+              rx="16"
+              ry="34"
+              fill="none"
+              stroke="#c9a96e"
+              stroke-width="2"
+              opacity="0.55"
+            />
+            <ellipse
+              cx="48"
+              cy="48"
+              rx="30"
+              ry="34"
+              fill="none"
+              stroke="#c9a96e"
+              stroke-width="1.2"
+              opacity="0.28"
+            />
+            <circle cx="48" cy="48" r="5" fill="#c9a96e" />
+          </svg>
+          <h2 class="font-display text-3xl font-normal tracking-wide text-cream">Atlas New Tab</h2>
+        </div>
+        <button
+          id="settings-close"
+          class="bg-transparent border-0 text-cream/60 cursor-pointer text-lg px-1.5 py-1 hover:text-cream transition-colors"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div id="settings-body" class="flex-1 overflow-y-auto pl-5 pr-5 pb-6 flex flex-col">
+        <!-- ─ WALLPAPER ─ -->
+        <div>
+          <div class="text-base tracking-ultra uppercase text-gold font-medium pt-1 pb-2">
+            Wallpaper
+          </div>
+
+          <!-- Photo Query -->
+          <div class="flex items-center justify-between gap-3 py-1.5">
+            <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Query</span>
+            <input
+              id="s-photo-query"
+              type="text"
+              value="landscape wallpaper"
+              class="flex-1 bg-cream/5 border border-cream/20 rounded-lg px-2.5 py-1 text-cream font-ui text-xs tracking-wide outline-none focus:border-gold/40 transition-colors placeholder:text-cream/25 min-w-0"
+            />
+          </div>
+
+          <div class="flex items-center justify-between gap-3 py-1">
+            <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Quality</span>
+            <div class="flex items-center gap-2 flex-1 justify-end">
+              <input
+                class="settings-slider flex-1 max-w-36 cursor-pointer"
+                type="range"
+                id="s-photo-quality"
+                min="50"
+                max="100"
+                step="5"
+                value="85"
+              />
+              <span class="text-xs text-cream/60 min-w-9 text-right" id="v-photo-quality">85</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-3 py-1">
+            <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Pages</span>
+            <div class="flex items-center gap-2 flex-1 justify-end">
+              <input
+                class="settings-slider flex-1 max-w-36 cursor-pointer"
+                type="range"
+                id="s-photo-pages"
+                min="1"
+                max="50"
+                step="1"
+                value="20"
+              />
+              <span class="text-xs text-cream/60 min-w-9 text-right" id="v-photo-pages">20</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-3 py-1">
+            <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Dim</span>
+            <div class="flex items-center gap-2 flex-1 justify-end">
+              <input
+                class="settings-slider flex-1 max-w-36 cursor-pointer"
+                type="range"
+                id="s-bg-dim"
+                min="0"
+                max="80"
+                step="5"
+                value="0"
+              />
+              <span class="text-xs text-cream/60 min-w-9 text-right" id="v-bg-dim">0</span>
+            </div>
+          </div>
+
+          <button
+            id="refresh-photo-btn"
+            class="w-full mt-2 bg-transparent border border-cream/20 rounded-md text-cream/60 font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-cream/5 hover:text-cream transition-colors"
+          >
+            ↺ &nbsp;New Photo Now
+          </button>
+          <button
+            class="settings-reset w-full mt-1.5 bg-transparent border border-cream/20 rounded-md text-cream/60 font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-cream/5 hover:text-cream transition-colors"
+            data-reset="wallpaper"
+          >
+            Reset Wallpaper
+          </button>
+        </div>
+
+        <!-- ─ SEARCH ENGINES ─ -->
+        <div class="border-t border-cream/20 mt-3">
+          <div class="text-base tracking-ultra uppercase text-gold font-medium pt-3 pb-2">
+            Search Engines
+          </div>
+          <div id="engine-checkboxes" class="flex flex-col gap-0.5"></div>
+          <button
+            class="settings-reset w-full mt-2 bg-transparent border border-cream/20 rounded-md text-cream/60 font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-cream/5 hover:text-cream transition-colors"
+            data-reset="engines"
+          >
+            Reset Engines
+          </button>
+        </div>
+
+        <!-- ─ SEARCH BAR ─ -->
+        <div class="border-t border-cream/20 mt-3">
+          <div class="flex items-center justify-between pt-3 pb-2">
+            <div class="text-base tracking-ultra uppercase text-gold font-medium">Search Bar</div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input id="s-show-search" type="checkbox" checked class="sr-only peer" />
+              <div
+                class="w-9 h-5 bg-cream/20 rounded-full peer peer-checked:bg-gold/70 transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"
+              ></div>
+            </label>
+          </div>
+
+          <div
+            id="search-disabled-msg"
+            class="hidden py-5 flex flex-col items-center gap-2 text-center"
+          >
+            <svg
+              class="w-8 h-8 text-cream/15 mb-1"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+            >
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+              />
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+            <p class="font-display text-lg text-cream/25 italic">Search bar is hidden</p>
+            <p class="text-xs text-cream/20 tracking-widest uppercase">
+              Toggle on above to configure
+            </p>
+          </div>
+
+          <div id="search-settings-content">
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Width</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-search-width"
+                  min="280"
+                  max="900"
+                  step="10"
+                  value="580"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-search-width"
+                  >580</span
+                >
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Height</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-search-height"
+                  min="36"
+                  max="80"
+                  step="2"
+                  value="52"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-search-height"
+                  >52</span
+                >
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Font Size</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-search-font"
+                  min="10"
+                  max="30"
+                  step="1"
+                  value="20"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-search-font">20</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24"
+                >Left / Right</span
+              >
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-search-x"
+                  min="-1920"
+                  max="1920"
+                  step="10"
+                  value="0"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-search-x">0</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Up / Down</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-search-y"
+                  min="-1080"
+                  max="1080"
+                  step="10"
+                  value="0"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-search-y">0</span>
+              </div>
+            </div>
+
+            <button
+              class="settings-reset w-full mt-2 bg-transparent border border-cream/20 rounded-md text-cream/60 font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-cream/5 hover:text-cream transition-colors"
+              data-reset="search"
+            >
+              Reset Search Bar
+            </button>
+          </div>
+          <!-- end search-settings-content -->
+        </div>
+
+        <!-- ─ ICON GRID ─ -->
+        <div class="border-t border-cream/20 mt-3">
+          <div class="flex items-center justify-between pt-3 pb-2">
+            <div class="text-base tracking-ultra uppercase text-gold font-medium">Icon Grid</div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input id="s-show-grid" type="checkbox" checked class="sr-only peer" />
+              <div
+                class="w-9 h-5 bg-cream/20 rounded-full peer peer-checked:bg-gold/70 transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"
+              ></div>
+            </label>
+          </div>
+
+          <div
+            id="grid-disabled-msg"
+            class="hidden py-5 flex flex-col items-center gap-2 text-center"
+          >
+            <svg
+              class="w-8 h-8 text-cream/15 mb-1"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+            >
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+              />
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+            <p class="font-display text-lg text-cream/25 italic">Icon grid is hidden</p>
+            <p class="text-xs text-cream/20 tracking-widest uppercase">
+              Toggle on above to configure
+            </p>
+          </div>
+
+          <div id="grid-settings-content">
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Columns</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-grid-cols"
+                  min="2"
+                  max="8"
+                  step="1"
+                  value="5"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-grid-cols">5</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Rows</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-grid-rows"
+                  min="1"
+                  max="4"
+                  step="1"
+                  value="2"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-grid-rows">2</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Icon Size</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-icon-size"
+                  min="1"
+                  max="100"
+                  step="1"
+                  value="80"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-icon-size">80</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Row Gap</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-icon-gap-row"
+                  min="1"
+                  max="100"
+                  step="1"
+                  value="20"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-icon-gap-row">20</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Col Gap</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-icon-gap-col"
+                  min="1"
+                  max="100"
+                  step="1"
+                  value="28"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-icon-gap-col">28</span>
+              </div>
+            </div>
+
+            <!-- Show Labels toggle -->
+            <div class="flex items-center justify-between gap-3 py-1.5">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Labels</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <div
+                  id="s-labels-toggle"
+                  class="relative flex flex-1 max-w-36 rounded-lg border border-cream/20 overflow-hidden text-xs tracking-widest uppercase cursor-pointer select-none"
+                >
+                  <div
+                    id="s-labels-slider"
+                    class="absolute inset-y-0 left-0 w-1/2 bg-gold/70 transition-all duration-200 ease-in-out"
+                  ></div>
+                  <div
+                    id="s-labels-on"
+                    class="relative z-10 flex-1 py-1.5 text-center transition-colors duration-200"
+                  >
+                    On
+                  </div>
+                  <div
+                    id="s-labels-off"
+                    class="relative z-10 flex-1 py-1.5 text-center transition-colors duration-200"
+                  >
+                    Off
+                  </div>
+                </div>
+                <div class="min-w-9"></div>
+              </div>
+            </div>
+
+            <div id="label-size-row" class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Label Size</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-label-font"
+                  min="8"
+                  max="20"
+                  step="1"
+                  value="11"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-label-font">11</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24"
+                >Left / Right</span
+              >
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-grid-x"
+                  min="-1920"
+                  max="1920"
+                  step="10"
+                  value="0"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-grid-x">0</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 py-1">
+              <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Up / Down</span>
+              <div class="flex items-center gap-2 flex-1 justify-end">
+                <input
+                  class="settings-slider flex-1 max-w-36 cursor-pointer"
+                  type="range"
+                  id="s-grid-y"
+                  min="-1080"
+                  max="1080"
+                  step="10"
+                  value="0"
+                />
+                <span class="text-xs text-cream/60 min-w-9 text-right" id="v-grid-y">0</span>
+              </div>
+            </div>
+
+            <button
+              id="edit-toggle"
+              class="settings-reset w-full mt-2 bg-transparent border border-cream/20 rounded-md text-cream/60 font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-cream/5 hover:text-cream transition-colors"
+            >
+              Customize Links
+            </button>
+            <button
+              class="settings-reset w-full mt-2 bg-transparent border border-cream/20 rounded-md text-cream/60 font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-cream/5 hover:text-cream transition-colors"
+              data-reset="grid"
+            >
+              Reset Icon Grid
+            </button>
+          </div>
+          <!-- end grid-settings-content -->
+        </div>
+
+        <!-- ─ GLOBAL ─ -->
+        <div class="border-t border-cream/20 mt-3">
+          <div class="text-base tracking-ultra uppercase text-gold font-medium pt-3 pb-2">
+            Global
+          </div>
+
+          <div class="flex items-center justify-between gap-3 py-1">
+            <span class="text-sm tracking-wide text-cream/60 shrink-0 min-w-24">Gap Between</span>
+            <div class="flex items-center gap-2 flex-1 justify-end">
+              <input
+                class="settings-slider flex-1 max-w-36 cursor-pointer"
+                type="range"
+                id="s-block-gap"
+                min="0"
+                max="120"
+                step="4"
+                value="40"
+              />
+              <span class="text-xs text-cream/60 min-w-9 text-right" id="v-block-gap">40</span>
+            </div>
+          </div>
+
+          <button
+            class="settings-reset w-full mt-2 bg-transparent border border-cream/20 rounded-md text-cream/60 font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-cream/5 hover:text-cream transition-colors"
+            data-reset="global"
+          >
+            Reset Global
+          </button>
+
+          <button
+            id="reset-all-btn"
+            class="w-full mt-1.5 bg-transparent border border-gold/30 text-gold/60 rounded-md font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-gold/10 hover:text-gold transition-colors"
+          >
+            Reset Everything
+          </button>
+          <div class="flex gap-2 mt-3">
+            <button
+              id="export-btn"
+              class="flex-1 bg-transparent border border-cream/20 rounded-md text-cream/60 font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-cream/5 hover:text-cream transition-colors"
+            >
+              Export
+            </button>
+            <button
+              id="import-btn"
+              class="flex-1 bg-transparent border border-cream/20 rounded-md text-cream/60 font-ui text-xs tracking-widest uppercase py-1.5 px-2.5 cursor-pointer hover:bg-cream/5 hover:text-cream transition-colors"
+            >
+              Import
+            </button>
+            <input id="import-file" type="file" accept=".json" class="hidden" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="newtab.js"></script>
+  </body>
+</html>

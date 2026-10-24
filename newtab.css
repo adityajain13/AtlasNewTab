@@ -1,0 +1,122 @@
+/* ================================================
+   ATLAS - newtab.css
+   Only what Tailwind cannot express:
+   custom animations, bg-slide, slider/scrollbar,
+   vignette, credit link, selected engine
+   ================================================ */
+
+/* --- Animations --- */
+@keyframes slow-zoom {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* --- Background slide --- */
+.bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.04);
+  /* Custom cubic-bezier - no Tailwind equivalent */
+  transition: opacity 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+}
+.bg-slide.active {
+  opacity: 1;
+  animation: slow-zoom 18s ease-in-out infinite alternate;
+}
+
+/* --- Radial vignette --- */
+.bg-vignette {
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+/* --- Entry animations --- */
+#search-wrap {
+  animation: fadeIn 0.9s ease both;
+}
+#links-wrap {
+  animation: fadeIn 0.9s 0.15s ease both;
+}
+
+/* --- Settings flyout open state --- */
+#settings-flyout.open {
+  transform: translateX(0);
+}
+
+/* --- Range slider thumb - no Tailwind equivalent --- */
+.settings-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: rgba(245, 243, 239, 0.18);
+  border-radius: 9999px;
+  outline: none;
+}
+.settings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #c9a96e;
+  cursor: pointer;
+  border: 2px solid rgba(10, 9, 8, 0.8);
+  box-shadow: 0 0 0 2px rgba(201, 169, 110, 0.4);
+  transition: transform 0.15s;
+}
+.settings-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* --- Custom scrollbar --- */
+#settings-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 169, 110, 0.35) transparent;
+}
+#settings-body::-webkit-scrollbar {
+  width: 3px;
+}
+#settings-body::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 8px;
+}
+#settings-body::-webkit-scrollbar-thumb {
+  background: rgba(201, 169, 110, 0.35);
+  border-radius: 99px;
+}
+#settings-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 169, 110, 0.65);
+}
+#modal-list::-webkit-scrollbar {
+  width: 3px;
+}
+#modal-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+#modal-list::-webkit-scrollbar-thumb {
+  background: rgba(245, 243, 239, 0.18);
+  border-radius: 99px;
+}
+
+/* --- Photo credit link --- */
+.credit-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.credit-link:hover {
+  color: #c9a96e;
+}
+.credit-location {
+  color: rgba(201, 169, 110, 0.65);
+  font-weight: 400;
+}
+
+.engine-opt.active {
+  color: #c9a96e;
+}
