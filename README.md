@@ -4,7 +4,7 @@ A Firefox new tab page with live Unsplash landscape wallpapers, a search bar wit
 
 [**Install from Firefox Add-ons**](https://addons.mozilla.org/en-CA/firefox/addon/atlas-new-tab/)
 
-![The Atlas new tab page](https://addons.mozilla.org/user-media/previews/full/377/377613.png?modified=1780445858)
+![The Atlas new tab page](screenshots/new-tab.jpg)
 
 ## Features
 
@@ -20,7 +20,11 @@ A Firefox new tab page with live Unsplash landscape wallpapers, a search bar wit
 
 | Settings panel | Customize links |
 | --- | --- |
-| ![Settings panel](https://addons.mozilla.org/user-media/previews/thumbs/377/377614.jpg?modified=1780445848) | ![Customize links panel](https://addons.mozilla.org/user-media/previews/thumbs/377/377615.jpg?modified=1780445848) |
+| <img src="screenshots/settings-panel.png" alt="Settings panel" width="260" /> | <img src="screenshots/customize-links.png" alt="Customize links panel" width="340" /> |
+
+The settings button sits on the right edge, halfway down the page, and only appears when you hover over it.
+
+<img src="screenshots/settings-button.jpg" alt="The settings button on the right edge of the page" width="500" />
 
 ## Setup
 
